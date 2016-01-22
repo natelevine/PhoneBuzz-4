@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var twilio = require('twilio');
 var app = express();
 var crypto = require('crypto');
+// Important! This config file is gitignored, and contains the api token, account sid, and Twilio phone number
 var apiKeys = require('./config.js');
 
 app.use(bodyParser.urlencoded({
@@ -12,7 +13,7 @@ app.use(bodyParser.urlencoded({
 app.listen(3000);
 console.log('PhoneBuzz is now listening on port 3000');
 
-//Serve up index.html
+// Serve up index.html
 app.use(express.static(__dirname + '/../client'));
 
 var client = require('twilio')(apiKeys.sid, apiKeys.token);
@@ -28,7 +29,7 @@ app.get('/call', function (req, res) {
     client.makeCall({
       to: '+' + numberString,
       from: '+' + apiKeys.number,
-      // breaks with a relative URL 
+      // breaks with a relative URL
       url: 'http://69910e47.ngrok.com/greet',
       // this must match the endpoint!
       method: 'GET'

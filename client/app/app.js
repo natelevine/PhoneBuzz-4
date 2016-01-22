@@ -7,7 +7,6 @@ var submitForm = function() {
   var success = function(data) {
     console.log('it worked! ', data);
   }
-
   $.get({
     url: '/call?phone=' + number,
     success: success
@@ -16,7 +15,8 @@ var submitForm = function() {
   return false;
 };
 
-$(document).ready(function(){
-
-
-});
+// This isn't necessary yet!
+// $(document).ready(function(){
+//
+//
+// });
