@@ -1,0 +1,16 @@
+{
+  "name": "phonebuzz",
+  "version": "1.0.0",
+  "description": "a twilio based webapp for a LendUp coding challenge",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nate Levine",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.4",
+    "twilio": "^2.8.0"
+  }
+}
