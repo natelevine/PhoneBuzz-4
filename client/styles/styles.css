@@ -8,7 +8,8 @@ input {
   margin-top: 1em;
   width: 75%;
 }
-button {
+.submit-button {
   margin-top: 0.5em;
   float: right;
+  width: 6em;
 }

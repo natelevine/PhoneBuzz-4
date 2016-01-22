@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script src="app/app.js"></script>
   <!-- Latest compiled and minified Bootstrap CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <!-- Latest compiled and minified Bootstrap JavaScript -->
@@ -13,9 +15,9 @@
   <container>
     <div id='main'>
       <h1>Welcome to PhoneBuzz!</h1>
-      <form action="">
-        <input type="text" class='form-control' name='phone' placeholder="Please enter a phone-number">
-        <button class='btn btn-default'>Submit</button>
+      <form id="main-form" action="/call">
+        <input type="text" class='form-control field' name='phone' placeholder="Please enter a phone-number">
+        <input type="button" value="Submit" onclick="submitForm()" class="btn btn-default submit-button">
       </form>
     </div>
   </container>

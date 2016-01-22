@@ -12,8 +12,15 @@ app.use(bodyParser.urlencoded({
 app.listen(3000);
 console.log('PhoneBuzz is now listening on port 3000');
 
-// Main route, greet the user and take a number as input
-app.get('/', function (req, res) {
+//Serve up index.html
+app.use(express.static(__dirname + '/../client'));
+
+app.get('/call', function (req, res) {
+  console.log(req.query);
+});
+
+// Main Twilio route, greet the user and take a number as input
+app.get('/greet', function (req, res) {
   /*
      Attempt to verify the x-twilio-signature manually by hashing the full url with
      my auth-token as the key. This is almost exactly as described in the docs, but currently
