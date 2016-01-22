@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var twilio = require('twilio');
 var app = express();
 var crypto = require('crypto');
-var key = require('./config.js').key;
+var apiKeys = require('./config.js');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -15,8 +15,34 @@ console.log('PhoneBuzz is now listening on port 3000');
 //Serve up index.html
 app.use(express.static(__dirname + '/../client'));
 
+var client = require('twilio')(apiKeys.sid, apiKeys.token);
+
+// Route that dials out to the number input into the input box
 app.get('/call', function (req, res) {
-  console.log(req.query);
+  // Regular Expression to check if the string contains only numbers
+  var numReg = new RegExp('^[0-9]+$');
+  var input = req.query.phone;
+  var numberString = input.split('-').join('');
+
+  if (numReg.test(numberString) && numberString.length === 11) {
+    client.makeCall({
+      to: '+' + numberString,
+      from: '+' + apiKeys.number,
+      // breaks with a relative URL 
+      url: 'http://69910e47.ngrok.com/greet',
+      // this must match the endpoint!
+      method: 'GET'
+    }, function (err, responseData) {
+      if (err) {
+        res.sendStatus(404);
+        throw new Error('There was an error with the call: ', err);
+      } else {
+        res.send('making the call');
+      }
+    })
+  } else {
+    res.send('invalid number');
+  }
 });
 
 // Main Twilio route, greet the user and take a number as input
@@ -27,7 +53,7 @@ app.get('/greet', function (req, res) {
      does not work. Possibly because of complications with tunneling (I used ngrok for testing)
 
      var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-     var hash = crypto.createHmac('sha1', key).update(fullUrl).digest('base64');
+     var hash = crypto.createHmac('sha1', apiKeys.token).update(fullUrl).digest('base64');
      if (req.headers.x-twilio-signature === hash) {
 
      }
@@ -39,7 +65,7 @@ app.get('/greet', function (req, res) {
      the exact url as an option- as shown in the docs.
 
      var options = { url: 'http://69910e47.ngrok.com' };
-     if (twilio.validateExpressRequest(req, key, options)) {
+     if (twilio.validateExpressRequest(req, apiKeys.token, options)) {
 
      }
   */
