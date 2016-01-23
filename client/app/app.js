@@ -1,3 +1,4 @@
+// Clears the data-fields on submit and sends the data to the server
 var submitForm = function() {
   var form = $('#main-form')
   var phoneField = form.children('.phone-field');
@@ -20,6 +21,13 @@ var submitForm = function() {
 
   return false;
 };
+
+/*
+  I toyed with the idea of using a light front-end framework like Backbone to deal with storing data
+  and displaying many similar elements. Ultimately I decided it would be unnecessary extra overhead and syntax
+  for such a simple app. However, towards the end I started to regret that due to the large amounts
+  of jquery manipulation and workarounds I was using.
+*/
 
 // Make sure the DOM has fully loaded first
 $(document).ready(function(){
@@ -56,6 +64,7 @@ $(document).ready(function(){
         $delay = $('<td></td>');
         $date = $('<td></td>');
         $digits = $('<td></td>');
+        // Attach each entry's database id to the button so that it can be easily sent on replay
         $button = $('<td><button> \
                       <span class="glyphicon glyphicon-repeat" aria-hidden="true"> \
                       </span> \
@@ -83,6 +92,7 @@ $(document).ready(function(){
     });
   };
 
+  // Non-ideal way of getting new data when it pops up in the database
   setInterval(populateTable, 5000);
   populateTable();
 });
