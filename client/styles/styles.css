@@ -4,10 +4,11 @@
   left: 50%;
   transform: translateX(-50%);
 }
-input {
+
+.phone-field, .delay-field {
   margin-top: 1em;
-  width: 75%;
 }
+
 .submit-button {
   margin-top: 0.5em;
   float: right;

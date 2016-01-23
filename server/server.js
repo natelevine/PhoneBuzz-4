@@ -25,22 +25,19 @@ app.get('/call', function (req, res) {
   var input = req.query.phone;
   var numberString = input.split('-').join('');
 
+  var delayString = req.query.delay.split(', ').join('');
+  var delayValue = computeDelay(delayString);
+
   if (numReg.test(numberString) && numberString.length === 11) {
-    client.makeCall({
-      to: '+' + numberString,
-      from: '+' + apiKeys.number,
-      // breaks with a relative URL
-      url: 'http://69910e47.ngrok.com/greet',
-      // this must match the endpoint!
-      method: 'GET'
-    }, function (err, responseData) {
-      if (err) {
-        res.sendStatus(404);
-        throw new Error('There was an error with the call: ', err);
-      } else {
-        res.send('making the call');
-      }
-    })
+    if (delayValue >= 0) {
+      // delegate the delay and call to the callOut function below
+      callOut(delayValue, numberString);
+      res.send('set delay for: ' + delayValue + ' seconds.')
+      // if computeDelay returned a -1, send back an error message
+    } else {
+      res.send('invalid delay');
+    }
+    // if the number doesn't match the regex, or isn't exactly 11 digits, send back a message
   } else {
     res.send('invalid number');
   }
@@ -76,7 +73,7 @@ app.get('/greet', function (req, res) {
            .gather({
              action:'/fizzbuzz',
              method: 'GET',
-             timout: 30,
+             timeout: 30,
              finishOnKey: '#'
            }, function () {
                 this.say({ voice: 'woman' }, 'Please enter a number, then press pound');
@@ -117,3 +114,49 @@ function fizzBuzz (n) {
   fizzBuzzString = fizzBuzzString.substr(0, fizzBuzzString.length-2) + '.';
   return fizzBuzzString;
 };
+
+function computeDelay (delayString) {
+  var result = 0;
+  var currentStr = '';
+
+  // For each character, if you see an 'h', 'm', or 's', calculate the appropriate
+  // number of seconds to add. Otherwise, if you see a number, memoize it and keep iterating
+  for (var i = 0; i < delayString.length; i++) {
+    if (delayString.charAt(i) === 'h') {
+      result += +currentStr * 3600;
+      currentStr = '';
+    } else if (delayString.charAt(i) === 'm') {
+      result += +currentStr * 60;
+      currentStr = '';
+    } else if (delayString.charAt(i) === 's') {
+      result += +currentStr;
+      currentStr = '';
+    } else if (typeof +delayString.charAt(i) === 'number') {
+      currentStr += delayString.charAt(i);
+    } else {
+      // Found an invalid character
+      return -1;
+    }
+  }
+  return result;
+}
+
+// Sets a timeout for the user entered delay, then calls the entered number
+function callOut (delay, numberString) {
+  setTimeout(function () {
+    client.makeCall({
+      to: '+' + numberString,
+      from: '+' + apiKeys.number,
+      // breaks with a relative URL
+      url: 'http://69910e47.ngrok.com/greet',
+      // this must match the endpoint!
+      method: 'GET'
+    }, function (err, responseData) {
+      if (err) {
+        throw new Error('There was an error with the call: ', err);
+      } else {
+        console.log('making the call');
+      }
+    });
+  }, delay * 1000);
+}

@@ -1,14 +1,19 @@
 var submitForm = function() {
   var form = $('#main-form')
-  var field = form.children('.field');
-  var number = field.val();
+  var phoneField = form.children('.phone-field');
+  var delayField = form.children('.delay-field');
 
-  field.val('');
+  var number = phoneField.val();
+  var delay = delayField.val();
+
+  phoneField.val('');
+  delayField.val('');
+
   var success = function(data) {
-    console.log('it worked! ', data);
+    console.log('successfully sent request to /call: ', data);
   }
   $.get({
-    url: '/call?phone=' + number,
+    url: '/call?phone=' + number + '&delay=' + delay,
     success: success
   });
 
