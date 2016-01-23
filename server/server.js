@@ -34,12 +34,7 @@ app.get('/call', function (req, res) {
       // delegate the delay and call to the callOut function below
       callOut(delayValue, numberString);
 
-      db.Call.create({
-        number: numberString,
-        delay: delayValue,
-      }).then(function (call) {
-        res.send('set delay for: ' + delayValue + ' seconds, and wrote to database')
-      })
+      res.send('set delay for: ' + delayValue + ' seconds')
       // if computeDelay returned a -1, send back an error message
     } else {
       res.send('invalid delay');
@@ -52,6 +47,8 @@ app.get('/call', function (req, res) {
 
 // Main Twilio route, greet the user and take a number as input
 app.get('/greet', function (req, res) {
+  var delay = req.query.delay;
+  var number = req.query.number;
   /*
      Attempt to verify the x-twilio-signature manually by hashing the full url with
      my auth-token as the key. This is almost exactly as described in the docs, but currently
@@ -78,7 +75,7 @@ app.get('/greet', function (req, res) {
   // Gather the user input and redirect to /fizzbuzz route below
   twimlResp.say({ voice:'woman' }, 'Welcome to PhoneBuzz')
            .gather({
-             action:'/fizzbuzz',
+             action:'/fizzbuzz?delay=' + delay,
              method: 'GET',
              timeout: 30,
              finishOnKey: '#'
@@ -100,7 +97,29 @@ app.get('/fizzbuzz', function(req, res) {
            .say({ voice: 'woman' }, 'Thanks for playing!');
   res.type('text/xml');
   res.send(twimlResp.toString());
+
+  // create a new entry in the Call table in the MySQL database
+  db.Call.create({
+    number: req.query.Called,
+    delay: req.query.delay,
+    digits: +req.query.Digits
+  });
 });
+
+app.get('/data', function (req, res) {
+  db.Call.findAll({})
+    .then(function (calls) {
+      res.json(calls);
+    });
+});
+
+app.get('/replay', function(req, res) {
+  db.Call.findOne({ where: { id: req.query.id }})
+    .then(function (entry) {
+      callOut(entry.delay, entry.number.substr(1, 11), true, entry.digits.toString());
+    });
+  res.send('replaying entry: ' + req.query.id);
+})
 
 // Calculate fizzbuzz up to the user's input and write it to a string
 function fizzBuzz (n) {
@@ -146,16 +165,19 @@ function computeDelay (delayString) {
     }
   }
   return result;
-}
+};
 
 // Sets a timeout for the user entered delay, then calls the entered number
-function callOut (delay, numberString) {
+function callOut (delay, numberString, repeat, digits) {
+  // If it's a repeat call, go straight to fizzbuzz and skip the input step
+  var endpoint = repeat ? '/fizzbuzz?Digits=' + digits + '&' : '/greet?'
+
   setTimeout(function () {
     client.makeCall({
       to: '+' + numberString,
       from: '+' + apiKeys.number,
       // breaks with a relative URL
-      url: 'http://69910e47.ngrok.com/greet',
+      url: 'http://69910e47.ngrok.com' + endpoint + 'delay=' + delay,
       // this must match the endpoint!
       method: 'GET'
     }, function (err, responseData) {
@@ -166,4 +188,4 @@ function callOut (delay, numberString) {
       }
     });
   }, delay * 1000);
-}
+};

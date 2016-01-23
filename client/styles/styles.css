@@ -1,8 +1,26 @@
-#main {
+#main, #data-table, h4 {
   position: absolute;
-  top: 30%;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#main {
+  top: 25%;
+}
+
+#data-table {
+  top: 60%;
+  width: 50em;
+}
+
+h4 {
+  top: 55%;
+}
+
+li div {
+  display: inline;
+  margin-left: 1em;
+  margin-right: 1em;
 }
 
 .phone-field, .delay-field {
