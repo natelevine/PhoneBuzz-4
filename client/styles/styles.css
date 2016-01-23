@@ -9,8 +9,11 @@
 }
 
 #data-table {
+  display: block;
   top: 60%;
-  width: 50em;
+  width: auto;
+  max-height: 20em;
+  overflow: scroll;
 }
 
 h4 {

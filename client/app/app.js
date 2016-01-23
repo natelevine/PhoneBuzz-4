@@ -23,14 +23,14 @@ var submitForm = function() {
 
 // Make sure the DOM has fully loaded first
 $(document).ready(function(){
-  $('#data-table').remove();
-  var parseData = function (data) {
-    if (data.length > 0) {
+  var parseData = function (calls) {
+    $('#data-table').remove();
+    $('h4').remove();
+    if (calls.length > 0) {
       var $tableTitle = $('<h4>Previous Calls</h4>')
       $('.container').append($tableTitle,
         '<table id="data-table" class="table table-striped"> \
           <tr> \
-            <th>ID</th> \
             <th>Phone</th> \
             <th>Delay (s)</th> \
             <th>Date (UTC)</th> \
@@ -46,55 +46,43 @@ $(document).ready(function(){
           $date,
           $digits,
           $button,
-          $entry
+          $row
 
-      for (var i = data.length-1; i >= 0; i--) {
-        var entry = data[i];
+      for (var i = calls.length-1; i >= 0; i--) {
+        var entry = calls[i];
 
-        $id = $('<td></td>');
+        $row = $('<tr class="entry"></tr>');
         $number = $('<td></td>');
         $delay = $('<td></td>');
         $date = $('<td></td>');
         $digits = $('<td></td>');
-        $button = $('<td><button></button></td>');
-        $entry = $('<tr class="entry"></tr>');
+        $button = $('<td><button> \
+                      <span class="glyphicon glyphicon-repeat" aria-hidden="true"> \
+                      </span> \
+                     </button></td>').data('id', entry.id);
 
-        $id.text(entry.id);
         $number.text(entry.number);
         $delay.text(entry.delay);
         $date.text(entry.createdAt.substr(0, 19));
         $digits.text(entry.digits);
 
-        $entry.append($id, $number, $delay, $date, $digits, $button);
-        $dataTable.append($entry);
+        $row.append($number, $delay, $date, $digits, $button);
+        $dataTable.append($row);
       }
+      $dataTable.on('click', 'button', function () {
+        $.get({
+          url: '/replay?id=' + $(this).parent().data('id')
+        });
+      });
     }
   };
+  var populateTable = function () {
+    $.get({
+      url: '/data',
+      success: parseData
+    });
+  };
 
-  $.get({
-    url: '/data',
-    success: parseData
-  });
+  setInterval(populateTable, 5000);
+  populateTable();
 });
-
-// index = database.length - 1;
-// while(index >= 0) {
-//   var tweet = database[index];
-//   var timeString = getTimeStamp(tweet.created_at);
-//
-//   var $time = $('<div class="time"></div>');
-//   var $name = $('<button class="name"></button>');
-//   var $tweet = $('<div class="tweet"></div>');
-//
-//   $time.text(timeString);
-//   $tweet.text(' ' + tweet.message);
-//   $name.text('@' + tweet.user + ':');
-//   $name.data("user", tweet.user);
-//
-//   $tweet.prepend($name);
-//   $tweet.prepend($time);
-//
-//   $('#tweetbox').append($tweet);
-//
-//   index -= 1;
-// }
