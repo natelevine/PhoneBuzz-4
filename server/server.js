@@ -5,6 +5,7 @@ var app = express();
 var crypto = require('crypto');
 // Important! This config file is gitignored, and contains the api token, account sid, and Twilio phone number
 var apiKeys = require('./config.js');
+var db = require('./dbModels');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -32,7 +33,13 @@ app.get('/call', function (req, res) {
     if (delayValue >= 0) {
       // delegate the delay and call to the callOut function below
       callOut(delayValue, numberString);
-      res.send('set delay for: ' + delayValue + ' seconds.')
+
+      db.Call.create({
+        number: numberString,
+        delay: delayValue,
+      }).then(function (call) {
+        res.send('set delay for: ' + delayValue + ' seconds, and wrote to database')
+      })
       // if computeDelay returned a -1, send back an error message
     } else {
       res.send('invalid delay');
